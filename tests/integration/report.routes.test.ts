@@ -254,3 +254,114 @@ describe('Report Routes Integration Tests', () => {
       expect(updates).toHaveLength(1);
       expect(updates[0].statusOld).toBe('ABERTA');
       expect(updates[0].statusNew).toBe('PROGRESSO');
+    });
+
+    it('deve retornar erro para transição inválida', async () => {
+      const category = await prisma.category.create({
+        data: { name: 'Infraestrutura' }
+      });
+
+      const report = await prisma.report.create({
+        data: {
+          title: 'Test Report',
+          description: 'Description',
+          categoryId: category.id,
+          location: 'Location',
+          priority: 'ALTA',
+          status: 'FECHADA'
+        }
+      });
+
+      const response = await request(app)
+        .patch(`/api/reports/${report.id}/status`)
+        .send({
+          status: 'ABERTA',
+          updatedBy: 'Teste'
+        });
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('POST /api/reports/:id/updates', () => {
+    it('deve registrar atualização no histórico', async () => {
+      const category = await prisma.category.create({
+        data: { name: 'Infraestrutura' }
+      });
+
+      const report = await prisma.report.create({
+        data: {
+          title: 'Test Report',
+          description: 'Description',
+          categoryId: category.id,
+          location: 'Location',
+          priority: 'ALTA'
+        }
+      });
+
+      const response = await request(app)
+        .post(`/api/reports/${report.id}/updates`)
+        .send({
+          comment: 'Equipe de manutenção acionada',
+          updatedBy: 'Técnico João'
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.comment).toBe('Equipe de manutenção acionada');
+      expect(response.body.data.updatedBy).toBe('Técnico João');
+    });
+
+    it('deve retornar 404 para denúncia inexistente', async () => {
+      const response = await request(app)
+        .post('/api/reports/999/updates')
+        .send({
+          comment: 'Teste',
+          updatedBy: 'João'
+        });
+
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/reports/:id/updates', () => {
+    it('deve listar histórico de atualizações', async () => {
+      const category = await prisma.category.create({
+        data: { name: 'Infraestrutura' }
+      });
+
+      const report = await prisma.report.create({
+        data: {
+          title: 'Test Report',
+          description: 'Description',
+          categoryId: category.id,
+          location: 'Location',
+          priority: 'ALTA'
+        }
+      });
+
+      // Criar algumas atualizações
+      await prisma.update.createMany({
+        data: [
+          {
+            reportId: report.id,
+            comment: 'Update 1',
+            updatedBy: 'João'
+          },
+          {
+            reportId: report.id,
+            comment: 'Update 2',
+            updatedBy: 'Maria'
+          }
+        ]
+      });
+
+      const response = await request(app)
+        .get(`/api/reports/${report.id}/updates`)
+        .query({ page: 1, limit: 10 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.pagination.total).toBe(2);
+    });
+  });
+});
