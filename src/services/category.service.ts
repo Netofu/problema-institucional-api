@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import { ApiError, NotFoundError, ConflictError } from '../utils/apiError';
+import { NotFoundError, ConflictError } from '../utils/apiError';
 import { logger } from '../utils/logger';
 
 export class CategoryService {
