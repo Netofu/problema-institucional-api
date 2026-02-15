@@ -2,7 +2,15 @@ import { CategoryService } from '../../src/services/category.service';
 import prisma from '../../src/config/database';
 import { ConflictError, NotFoundError } from '../../src/utils/apiError';
 
-jest.mock('../../src/config/database');
+jest.mock('../../src/config/database', () => ({
+  __esModule: true,
+  default: {
+    category: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe('CategoryService', () => {
   beforeEach(() => {
