@@ -5,8 +5,7 @@ import { validate } from '../middlewares/validation.middleware';
 import { pagination } from '../middlewares/pagination.middleware';
 import {
   createReportSchema,
-  updateReportStatusSchema,
-  reportQuerySchema
+  updateReportStatusSchema
 } from '../validations/report.validation';
 import { createUpdateSchema } from '../validations/update.validation';
 

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CategoryService } from '../services/category.service';
 import { ApiResponse, createPagination } from '../utils/apiResponse';
-import { logger } from '../utils/logger';
 
 export class CategoryController {
   static async createCategory(req: Request, res: Response, next: NextFunction) {

@@ -4,8 +4,7 @@ import { validate } from '../middlewares/validation.middleware';
 import { pagination } from '../middlewares/pagination.middleware';
 import {
   createCategorySchema,
-  updateCategorySchema,
-  categoryQuerySchema
+  updateCategorySchema
 } from '../validations/category.validation';
 
 const router = Router();
